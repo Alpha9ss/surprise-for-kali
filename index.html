@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Love Planet 💗</title>
 
 <style>
@@ -14,8 +14,34 @@ html,body{
   background:#000;
   color:white;
   font-family:Arial,sans-serif;
+  touch-action:none;
 }
-canvas{position:fixed;inset:0}
+canvas{
+  position:fixed;
+  inset:0;
+  width:100vw;
+  height:100vh;
+}
+
+#rotateScreen{
+  position:fixed;
+  inset:0;
+  background:#000;
+  color:#ffb6e6;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  text-align:center;
+  z-index:999;
+  padding:30px;
+}
+#rotateScreen h1{font-size:34px;margin-bottom:15px}
+#rotateScreen p{font-size:18px;color:white}
+
+@media (orientation:portrait){
+  #rotateScreen{display:flex}
+}
 
 #loader,#question,#guide{
   position:fixed;
@@ -29,12 +55,7 @@ canvas{position:fixed;inset:0}
   text-align:center;
 }
 
-.planetIcon{
-  font-size:58px;
-  margin-bottom:24px;
-  filter:drop-shadow(0 0 18px #b65cff);
-}
-
+.planetIcon{font-size:58px;margin-bottom:24px}
 .loadingCircle{
   width:70px;height:70px;border-radius:50%;
   border:6px solid #111;
@@ -42,7 +63,6 @@ canvas{position:fixed;inset:0}
   box-shadow:0 0 35px #ff6477;
   animation:spin 1s linear infinite;
 }
-
 #loader h1{color:#ffa56d;margin-top:25px}
 #loader p{margin-top:12px}
 
@@ -51,7 +71,6 @@ canvas{position:fixed;inset:0}
   background:rgba(0,0,0,.55);
   backdrop-filter:blur(8px);
 }
-
 .box{
   background:rgba(8,8,14,.92);
   border:1px solid #333;
@@ -75,20 +94,18 @@ button{
   background:#cf4f58;
   box-shadow:0 0 22px #ff6060;
 }
-#noBtn{position:relative}
 
 #guide{
   display:none;
   background:rgba(0,0,0,.25);
 }
 .guideBox{
-  width:min(540px,90vw);
-  background:rgba(10,10,15,.88);
+  width:min(560px,90vw);
+  background:rgba(10,10,15,.9);
   border:1px solid #333;
   border-radius:14px;
   padding:24px;
   text-align:left;
-  box-shadow:0 0 40px #7f2cff55;
 }
 .guideBox h2,.guideBox h3{color:#ffc1ec}
 .guideBox h3{margin-top:18px}
@@ -96,8 +113,8 @@ button{
 
 .close{
   position:absolute;
-  right:calc(50% - 250px);
-  top:calc(50% - 175px);
+  right:calc(50% - 260px);
+  top:calc(50% - 180px);
   font-size:35px;
   background:none;
   border:none;
@@ -105,23 +122,28 @@ button{
 
 #help{
   position:fixed;
-  top:20px;
-  left:20px;
-  width:50px;
-  height:50px;
+  top:22px;
+  left:22px;
+  width:56px;
+  height:56px;
   border-radius:50%;
   z-index:6;
   background:#111;
-  box-shadow:0 0 18px white;
+  box-shadow:0 0 20px white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+  font-size:21px;
 }
 
 #loveText{
   position:fixed;
-  top:17%;
+  top:13%;
   left:50%;
   transform:translateX(-50%);
   z-index:5;
-  font-size:36px;
+  font-size:30px;
   font-family:cursive;
   color:white;
   text-shadow:0 0 10px white,0 0 25px #b65cff;
@@ -132,7 +154,7 @@ button{
 
 #tapHint{
   position:fixed;
-  bottom:30px;
+  bottom:25px;
   left:50%;
   transform:translateX(-50%);
   color:#ddd;
@@ -143,14 +165,15 @@ button{
 }
 
 @keyframes spin{to{transform:rotate(360deg)}}
-
-@media(max-width:700px){
-  #loveText{font-size:23px;top:13%}
-}
 </style>
 </head>
 
 <body>
+
+<div id="rotateScreen">
+  <h1>Please rotate your phone ❤️</h1>
+  <p>This love planet looks better in landscape mode ✨</p>
+</div>
 
 <canvas id="c"></canvas>
 
@@ -178,9 +201,8 @@ button{
     <p>💚 <b>[Mobile]</b> Tap the galaxy to start the music ✨</p>
     <p>💙 <b>[PC]</b> Double click the galaxy to start the music ✨</p>
     <h3>CAMERA CONTROL</h3>
-    <p>• Drag slowly to explore 🌙</p>
-    <p>• Scroll / pinch to zoom closer ✨</p>
-    <p>• Press the ? button to start the moment too 💗</p>
+    <p>• Drag with finger/mouse to move around 🌙</p>
+    <p>• Pinch or scroll to zoom ✨</p>
   </div>
 </div>
 
@@ -195,104 +217,99 @@ button{
 <script>
 const canvas=document.getElementById("c");
 const ctx=canvas.getContext("2d");
-canvas.width=innerWidth;
-canvas.height=innerHeight;
 
-const photoList=[];
-for(let i=1;i<=32;i++) photoList.push(`images/photo${i}.jpg`);
+let W,H,DPR;
+
+function resizeCanvas(){
+  DPR=Math.min(window.devicePixelRatio || 1,2);
+  W=innerWidth;
+  H=innerHeight;
+  canvas.width=W*DPR;
+  canvas.height=H*DPR;
+  canvas.style.width=W+"px";
+  canvas.style.height=H+"px";
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+
+resizeCanvas();
 
 const loadedPhotos=[];
-photoList.forEach(src=>{
+for(let i=1;i<=32;i++){
   const img=new Image();
-  img.src=src;
+  img.src=`images/photo${i}.jpg`;
   loadedPhotos.push(img);
-});
+}
 
-let particles=[], photos=[], stars=[], meteors=[], dust=[];
+let particles=[], photos=[], stars=[], meteors=[];
 let angleX=0.72, angleY=0;
-let zoom=820;
+let zoom=950;
 let auto=false;
 let dragging=false;
 let lastX=0,lastY=0;
 let worldStarted=false;
+let lastTap=0;
+let pinchDistance=null;
 
 function init(){
-  particles=[]; photos=[]; stars=[]; meteors=[]; dust=[];
+  particles=[]; photos=[]; stars=[]; meteors=[];
 
-  for(let i=0;i<900;i++){
+  for(let i=0;i<700;i++){
     stars.push({
-      x:Math.random()*canvas.width,
-      y:Math.random()*canvas.height,
-      z:Math.random(),
-      r:Math.random()*1.7+.25,
-      a:Math.random()*.8+.2,
+      x:Math.random()*W,
+      y:Math.random()*H,
+      r:Math.random()*1.6+.25,
       tw:Math.random()*Math.PI*2
     });
   }
 
-  for(let i=0;i<12000;i++){
-    let r=Math.pow(Math.random(),.55)*560+70;
+  for(let i=0;i<15000;i++){
+    let r=Math.pow(Math.random(),.55)*620+80;
     let a=Math.random()*Math.PI*2;
-    let y=(Math.random()-.5)*85;
-    let arm=Math.sin(a*3+r*.025)*22;
-
+    let y=(Math.random()-.5)*90;
+    let arm=Math.sin(a*3+r*.02)*25;
     particles.push({
       x:Math.cos(a)*(r+arm),
       y:y,
       z:Math.sin(a)*(r+arm),
-      size:Math.random()*1.35+.35,
-      color:Math.random()>.72?"#ff2fd2":Math.random()>.45?"#a872ff":"#5b4dff"
+      size:Math.random()*1.25+.35,
+      color:Math.random()>.68?"#ff2fd2":Math.random()>.45?"#a872ff":"#5b4dff"
     });
   }
 
-  for(let i=0;i<5200;i++){
+  for(let i=0;i<6200;i++){
     let u=Math.random()*Math.PI*2;
     let v=Math.random()*Math.PI;
-    let r=125+Math.random()*18;
+    let r=135+Math.random()*25;
     particles.push({
       x:Math.cos(u)*Math.sin(v)*r,
       y:Math.cos(v)*r,
       z:Math.sin(u)*Math.sin(v)*r,
-      size:Math.random()*1.9+.5,
+      size:Math.random()*1.8+.5,
       color:Math.random()>.5?"#ff35df":"#b46cff"
     });
   }
 
-  for(let i=0;i<1800;i++){
-    let r=Math.random()*650+80;
-    let a=Math.random()*Math.PI*2;
-    dust.push({
-      x:Math.cos(a)*r,
-      y:(Math.random()-.5)*420,
-      z:Math.sin(a)*r,
-      size:Math.random()*1.2+.3,
-      color:Math.random()>.5?"#ff27c9":"#777"
-    });
-  }
-
-  for(let i=0;i<190;i++){
-    let r=Math.random()*520+140;
+  for(let i=0;i<165;i++){
+    let r=Math.random()*560+160;
     let a=Math.random()*Math.PI*2;
     photos.push({
       x:Math.cos(a)*r,
       y:(Math.random()-.5)*230,
       z:Math.sin(a)*r,
       img:loadedPhotos[i%loadedPhotos.length],
-      s:Math.random()*24+30
+      s:Math.random()*20+32
     });
   }
 
-  for(let i=0;i<7;i++) resetMeteor(i,true);
-}
-
-function resetMeteor(i,randomStart=false){
-  meteors[i]={
-    x:randomStart ? Math.random()*canvas.width : -120,
-    y:Math.random()*canvas.height*.42,
-    len:Math.random()*150+120,
-    speed:Math.random()*5+4,
-    delay:Math.random()*160
-  };
+  for(let i=0;i<7;i++){
+    meteors.push({
+      x:Math.random()*W,
+      y:Math.random()*H*.4,
+      len:Math.random()*140+100,
+      speed:Math.random()*4+3,
+      delay:Math.random()*160
+    });
+  }
 }
 
 function project(p){
@@ -305,32 +322,27 @@ function project(p){
   z=p.y*sx+z*cx;
 
   let scale=zoom/(zoom+z);
-  return {
-    x:canvas.width/2+x*scale,
-    y:canvas.height/2+y*scale,
-    s:scale,
-    z:z
-  };
+  return {x:W/2+x*scale,y:H/2+y*scale,s:scale,z};
 }
 
 function drawStars(){
   for(const st of stars){
     st.tw+=0.025;
-    let alpha=st.a+Math.sin(st.tw)*.25;
-    ctx.globalAlpha=Math.max(.15,alpha);
+    let a=.35+Math.sin(st.tw)*.25;
+    ctx.globalAlpha=a;
     ctx.fillStyle="#fff";
     ctx.beginPath();
     ctx.arc(st.x,st.y,st.r,0,Math.PI*2);
     ctx.fill();
 
-    if(st.r>1.2){
-      ctx.globalAlpha=alpha*.25;
+    if(st.r>1.1){
+      ctx.globalAlpha=a*.5;
       ctx.strokeStyle="#fff";
       ctx.beginPath();
-      ctx.moveTo(st.x-st.r*3,st.y);
-      ctx.lineTo(st.x+st.r*3,st.y);
-      ctx.moveTo(st.x,st.y-st.r*3);
-      ctx.lineTo(st.x,st.y+st.r*3);
+      ctx.moveTo(st.x-st.r*4,st.y);
+      ctx.lineTo(st.x+st.r*4,st.y);
+      ctx.moveTo(st.x,st.y-st.r*4);
+      ctx.lineTo(st.x,st.y+st.r*4);
       ctx.stroke();
     }
   }
@@ -338,13 +350,12 @@ function drawStars(){
 }
 
 function drawMeteors(){
-  for(let i=0;i<meteors.length;i++){
-    const m=meteors[i];
-    if(m.delay>0){m.delay--;continue;}
+  for(const m of meteors){
+    if(m.delay>0){m.delay--;continue}
 
     const grad=ctx.createLinearGradient(m.x,m.y,m.x-m.len,m.y-m.len*.35);
     grad.addColorStop(0,"rgba(255,255,255,1)");
-    grad.addColorStop(.25,"rgba(255,255,255,.55)");
+    grad.addColorStop(.3,"rgba(255,255,255,.45)");
     grad.addColorStop(1,"rgba(255,255,255,0)");
 
     ctx.strokeStyle=grad;
@@ -356,54 +367,43 @@ function drawMeteors(){
 
     ctx.fillStyle="white";
     ctx.shadowColor="white";
-    ctx.shadowBlur=15;
+    ctx.shadowBlur=16;
     ctx.beginPath();
-    ctx.arc(m.x,m.y,3.5,0,Math.PI*2);
+    ctx.arc(m.x,m.y,3,0,Math.PI*2);
     ctx.fill();
     ctx.shadowBlur=0;
 
     m.x+=m.speed;
     m.y+=m.speed*.35;
 
-    if(m.x>canvas.width+180 || m.y>canvas.height*.7) resetMeteor(i);
+    if(m.x>W+200 || m.y>H*.75){
+      m.x=-150;
+      m.y=Math.random()*H*.38;
+      m.delay=Math.random()*180;
+    }
   }
 }
 
 function draw(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.clearRect(0,0,W,H);
 
-  const bg=ctx.createRadialGradient(
-    canvas.width/2,canvas.height/2,10,
-    canvas.width/2,canvas.height/2,canvas.width*.75
-  );
+  const bg=ctx.createRadialGradient(W/2,H/2,10,W/2,H/2,W*.8);
   bg.addColorStop(0,"#16001f");
-  bg.addColorStop(.35,"#050008");
+  bg.addColorStop(.45,"#050008");
   bg.addColorStop(1,"#000");
   ctx.fillStyle=bg;
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillRect(0,0,W,H);
 
   drawStars();
   drawMeteors();
 
   if(auto) angleY+=0.0035;
 
-  for(const d of dust){
-    const q=project(d);
-    if(q.s<=0) continue;
-    ctx.globalAlpha=.45;
-    ctx.fillStyle=d.color;
-    ctx.beginPath();
-    ctx.arc(q.x,q.y,d.size*q.s,0,Math.PI*2);
-    ctx.fill();
-  }
-  ctx.globalAlpha=1;
-
-  const sorted=[...particles].sort((a,b)=>project(b).z-project(a).z);
-  for(const p of sorted){
+  for(const p of particles){
     const q=project(p);
     if(q.s<=0) continue;
-    ctx.fillStyle=p.color;
     ctx.globalAlpha=.9;
+    ctx.fillStyle=p.color;
     ctx.beginPath();
     ctx.arc(q.x,q.y,p.size*q.s,0,Math.PI*2);
     ctx.fill();
@@ -416,11 +416,11 @@ function draw(){
     if(q.s<=0) continue;
 
     let size=p.s*q.s;
-    size=Math.max(18,Math.min(size,72));
+    size=Math.max(22,Math.min(size,58));
 
     ctx.save();
     ctx.shadowColor="#d88cff";
-    ctx.shadowBlur=10;
+    ctx.shadowBlur=12;
     ctx.drawImage(p.img,q.x-size/2,q.y-size/2,size,size);
     ctx.restore();
   }
@@ -453,46 +453,86 @@ function startWorld(){
 
 function startMoment(){
   if(!worldStarted) return;
-  const music=document.getElementById("music");
-  music.play().catch(()=>{});
+  document.getElementById("music").play().catch(()=>{});
   auto=true;
   document.getElementById("loveText").style.opacity=1;
   document.getElementById("tapHint").style.opacity=0;
 }
 
-canvas.addEventListener("mousedown",e=>{
+function pointerStart(x,y){
   dragging=true;
-  lastX=e.clientX;
-  lastY=e.clientY;
-});
-addEventListener("mouseup",()=>dragging=false);
-addEventListener("mousemove",e=>{
+  lastX=x;
+  lastY=y;
+}
+function pointerMove(x,y){
   if(!dragging)return;
-  angleY+=(e.clientX-lastX)*0.005;
-  angleX+=(e.clientY-lastY)*0.005;
-  lastX=e.clientX;
-  lastY=e.clientY;
+  angleY+=(x-lastX)*0.006;
+  angleX+=(y-lastY)*0.006;
+  lastX=x;
+  lastY=y;
+}
+function pointerEnd(){dragging=false}
+
+canvas.addEventListener("mousedown",e=>pointerStart(e.clientX,e.clientY));
+addEventListener("mousemove",e=>pointerMove(e.clientX,e.clientY));
+addEventListener("mouseup",pointerEnd);
+
+canvas.addEventListener("touchstart",e=>{
+  if(e.touches.length===1){
+    pointerStart(e.touches[0].clientX,e.touches[0].clientY);
+
+    const now=Date.now();
+    if(now-lastTap<350) startMoment();
+    lastTap=now;
+  }
+
+  if(e.touches.length===2){
+    pinchDistance=Math.hypot(
+      e.touches[0].clientX-e.touches[1].clientX,
+      e.touches[0].clientY-e.touches[1].clientY
+    );
+  }
+},{passive:false});
+
+canvas.addEventListener("touchmove",e=>{
+  e.preventDefault();
+
+  if(e.touches.length===1){
+    pointerMove(e.touches[0].clientX,e.touches[0].clientY);
+  }
+
+  if(e.touches.length===2){
+    const d=Math.hypot(
+      e.touches[0].clientX-e.touches[1].clientX,
+      e.touches[0].clientY-e.touches[1].clientY
+    );
+    if(pinchDistance){
+      zoom+=(pinchDistance-d)*1.2;
+      zoom=Math.max(650,Math.min(1300,zoom));
+    }
+    pinchDistance=d;
+  }
+},{passive:false});
+
+canvas.addEventListener("touchend",()=>{
+  pointerEnd();
+  pinchDistance=null;
 });
 
 canvas.addEventListener("wheel",e=>{
   zoom+=e.deltaY*.45;
-  zoom=Math.max(500,Math.min(1250,zoom));
+  zoom=Math.max(650,Math.min(1300,zoom));
 });
 
 canvas.addEventListener("dblclick",startMoment);
-canvas.addEventListener("click",()=>{
-  if(window.innerWidth<800) startMoment();
-});
 
 addEventListener("resize",()=>{
-  canvas.width=innerWidth;
-  canvas.height=innerHeight;
+  resizeCanvas();
   init();
 });
 
 init();
 draw();
 </script>
-
 </body>
 </html>
