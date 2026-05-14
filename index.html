@@ -325,7 +325,7 @@ function project(p){
   let y=p.y*cx-z*sx;
   z=p.y*sx+z*cx;
 
-  let scale=zoom/(zoom+z);
+  let scale = 900 / (zoom + z);
   return {x:W/2+x*scale,y:H/2+y*scale,s:scale,z};
 }
 
@@ -519,8 +519,8 @@ canvas.addEventListener("touchmove",e=>{
       e.touches[0].clientY-e.touches[1].clientY
     );
     if(pinchDistance){
-      zoom+=(pinchDistance-d)*1.2;
-      zoom=Math.max(650,Math.min(1300,zoom));
+      zoom += (pinchDistance - d) * 1.2;
+      zoom = Math.max(350, Math.min(1500, zoom));
     }
     pinchDistance=d;
   }
@@ -532,8 +532,8 @@ canvas.addEventListener("touchend",()=>{
 });
 
 canvas.addEventListener("wheel",e=>{
-  zoom+=e.deltaY*.45;
-  zoom=Math.max(650,Math.min(1300,zoom));
+  zoom += e.deltaY * .45;
+zoom = Math.max(350, Math.min(1500, zoom));
 });
 
 canvas.addEventListener("dblclick",startMoment);
