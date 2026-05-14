@@ -7,16 +7,16 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{
+html,body{
+  width:100%;
+  height:100%;
   overflow:hidden;
   background:#000;
   color:white;
   font-family:Arial,sans-serif;
 }
-canvas{
-  position:fixed;
-  inset:0;
-}
+canvas{position:fixed;inset:0}
+
 #loader,#question,#guide{
   position:fixed;
   inset:0;
@@ -28,28 +28,39 @@ canvas{
   background:#000;
   text-align:center;
 }
-.planetIcon{font-size:55px;margin-bottom:25px}
+
+.planetIcon{
+  font-size:58px;
+  margin-bottom:24px;
+  filter:drop-shadow(0 0 18px #b65cff);
+}
+
 .loadingCircle{
   width:70px;height:70px;border-radius:50%;
-  border:6px solid #111;border-top:6px solid #ff5a6e;
-  box-shadow:0 0 30px #ff5a6e;
+  border:6px solid #111;
+  border-top:6px solid #ff6477;
+  box-shadow:0 0 35px #ff6477;
   animation:spin 1s linear infinite;
 }
+
 #loader h1{color:#ffa56d;margin-top:25px}
 #loader p{margin-top:12px}
+
 #question{
   display:none;
   background:rgba(0,0,0,.55);
   backdrop-filter:blur(8px);
 }
+
 .box{
-  background:rgba(10,10,15,.9);
+  background:rgba(8,8,14,.92);
   border:1px solid #333;
-  border-radius:16px;
+  border-radius:18px;
   padding:35px 45px;
-  box-shadow:0 0 35px #7a2cff55;
+  box-shadow:0 0 45px #9b39ff55;
 }
 .box h2{color:#ffc1ec;margin-bottom:25px}
+
 button{
   padding:14px 28px;
   border-radius:10px;
@@ -62,58 +73,80 @@ button{
 }
 .yes{
   background:#cf4f58;
-  box-shadow:0 0 20px #ff6060;
+  box-shadow:0 0 22px #ff6060;
 }
 #noBtn{position:relative}
+
 #guide{
   display:none;
   background:rgba(0,0,0,.25);
 }
 .guideBox{
-  width:min(520px,90vw);
+  width:min(540px,90vw);
   background:rgba(10,10,15,.88);
   border:1px solid #333;
-  border-radius:12px;
+  border-radius:14px;
   padding:24px;
   text-align:left;
+  box-shadow:0 0 40px #7f2cff55;
 }
-.guideBox h2{color:#ffc1ec}
-.guideBox h3{color:#ffc1ec;margin-top:18px}
+.guideBox h2,.guideBox h3{color:#ffc1ec}
+.guideBox h3{margin-top:18px}
 .guideBox p{margin:10px 0;line-height:1.5}
+
 .close{
   position:absolute;
-  right:calc(50% - 240px);
-  top:calc(50% - 170px);
+  right:calc(50% - 250px);
+  top:calc(50% - 175px);
   font-size:35px;
   background:none;
   border:none;
 }
+
 #help{
   position:fixed;
   top:20px;
   left:20px;
-  width:48px;
-  height:48px;
+  width:50px;
+  height:50px;
   border-radius:50%;
   z-index:6;
   background:#111;
   box-shadow:0 0 18px white;
 }
+
 #loveText{
   position:fixed;
-  top:18%;
+  top:17%;
   left:50%;
   transform:translateX(-50%);
   z-index:5;
-  font-size:34px;
+  font-size:36px;
   font-family:cursive;
   color:white;
-  text-shadow:0 0 12px white;
+  text-shadow:0 0 10px white,0 0 25px #b65cff;
   opacity:0;
-  transition:1s;
+  transition:1.2s;
   white-space:nowrap;
 }
+
+#tapHint{
+  position:fixed;
+  bottom:30px;
+  left:50%;
+  transform:translateX(-50%);
+  color:#ddd;
+  z-index:5;
+  opacity:0;
+  transition:1s;
+  text-shadow:0 0 12px #fff;
+}
+
 @keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:700px){
+  #loveText{font-size:23px;top:13%}
+}
 </style>
 </head>
 
@@ -142,17 +175,18 @@ button{
   <div class="guideBox">
     <h2>Quick Guide</h2>
     <h3>BASIC CONTROL</h3>
-    <p>💚 <b>[Mobile]</b> Double tap anywhere to start this little moment ✨</p>
-    <p>💙 <b>[PC]</b> Double click anywhere to start this little moment ✨</p>
+    <p>💚 <b>[Mobile]</b> Tap the galaxy to start the music ✨</p>
+    <p>💙 <b>[PC]</b> Double click the galaxy to start the music ✨</p>
     <h3>CAMERA CONTROL</h3>
     <p>• Drag slowly to explore 🌙</p>
-    <p>• Left click and drag to move around 🌙</p>
     <p>• Scroll / pinch to zoom closer ✨</p>
+    <p>• Press the ? button to start the moment too 💗</p>
   </div>
 </div>
 
-<button id="help" onclick="toggleMusic()">?</button>
-<div id="loveText">Only For You, My Love</div>
+<button id="help" onclick="startMoment()">?</button>
+<div id="loveText">Only For You, My Love Kyle Alison Manio</div>
+<div id="tapHint">Tap the galaxy to start the song ✨</div>
 
 <audio id="music" loop>
   <source src="music.mp3" type="audio/mpeg">
@@ -174,77 +208,91 @@ photoList.forEach(src=>{
   loadedPhotos.push(img);
 });
 
-let particles=[];
-let photos=[];
-let stars=[];
-let meteors=[];
-let angleX=0.7, angleY=0;
-let zoom=750;
+let particles=[], photos=[], stars=[], meteors=[], dust=[];
+let angleX=0.72, angleY=0;
+let zoom=820;
 let auto=false;
 let dragging=false;
 let lastX=0,lastY=0;
+let worldStarted=false;
 
 function init(){
-  particles=[];
-  photos=[];
-  stars=[];
-  meteors=[];
+  particles=[]; photos=[]; stars=[]; meteors=[]; dust=[];
 
-  for(let i=0;i<8500;i++){
-    let r=Math.random()*420+70;
-    let a=Math.random()*Math.PI*2;
-    let y=(Math.random()-.5)*90;
-    particles.push({
-      x:Math.cos(a)*r,
-      y:y,
-      z:Math.sin(a)*r,
-      size:Math.random()*1.6+.4,
-      color:Math.random()>.65?"#ff2ccf":"#7d5cff"
+  for(let i=0;i<900;i++){
+    stars.push({
+      x:Math.random()*canvas.width,
+      y:Math.random()*canvas.height,
+      z:Math.random(),
+      r:Math.random()*1.7+.25,
+      a:Math.random()*.8+.2,
+      tw:Math.random()*Math.PI*2
     });
   }
 
-  for(let i=0;i<3500;i++){
+  for(let i=0;i<12000;i++){
+    let r=Math.pow(Math.random(),.55)*560+70;
+    let a=Math.random()*Math.PI*2;
+    let y=(Math.random()-.5)*85;
+    let arm=Math.sin(a*3+r*.025)*22;
+
+    particles.push({
+      x:Math.cos(a)*(r+arm),
+      y:y,
+      z:Math.sin(a)*(r+arm),
+      size:Math.random()*1.35+.35,
+      color:Math.random()>.72?"#ff2fd2":Math.random()>.45?"#a872ff":"#5b4dff"
+    });
+  }
+
+  for(let i=0;i<5200;i++){
     let u=Math.random()*Math.PI*2;
     let v=Math.random()*Math.PI;
-    let r=115;
+    let r=125+Math.random()*18;
     particles.push({
       x:Math.cos(u)*Math.sin(v)*r,
       y:Math.cos(v)*r,
       z:Math.sin(u)*Math.sin(v)*r,
-      size:Math.random()*1.8+.5,
-      color:"#d62cff"
+      size:Math.random()*1.9+.5,
+      color:Math.random()>.5?"#ff35df":"#b46cff"
     });
   }
 
-  for(let i=0;i<170;i++){
-    let r=Math.random()*460+120;
+  for(let i=0;i<1800;i++){
+    let r=Math.random()*650+80;
+    let a=Math.random()*Math.PI*2;
+    dust.push({
+      x:Math.cos(a)*r,
+      y:(Math.random()-.5)*420,
+      z:Math.sin(a)*r,
+      size:Math.random()*1.2+.3,
+      color:Math.random()>.5?"#ff27c9":"#777"
+    });
+  }
+
+  for(let i=0;i<190;i++){
+    let r=Math.random()*520+140;
     let a=Math.random()*Math.PI*2;
     photos.push({
       x:Math.cos(a)*r,
-      y:(Math.random()-.5)*190,
+      y:(Math.random()-.5)*230,
       z:Math.sin(a)*r,
       img:loadedPhotos[i%loadedPhotos.length],
-      s:Math.random()*28+28
+      s:Math.random()*24+30
     });
   }
 
-  for(let i=0;i<450;i++){
-    stars.push({
-      x:Math.random()*canvas.width,
-      y:Math.random()*canvas.height,
-      s:Math.random()*2+0.5,
-      c:Math.random()>.5?"#ff21c8":"#777"
-    });
-  }
+  for(let i=0;i<7;i++) resetMeteor(i,true);
+}
 
-  for(let i=0;i<9;i++){
-    meteors.push({
-      x:Math.random()*canvas.width,
-      y:Math.random()*220,
-      l:Math.random()*100+60,
-      speed:Math.random()*2+1
-    });
-  }
+function resetMeteor(i,randomStart=false){
+  meteors[i]={
+    x:randomStart ? Math.random()*canvas.width : -120,
+    y:Math.random()*canvas.height*.42,
+    len:Math.random()*150+120,
+    speed:Math.random()*5+4,
+    delay:Math.random()*160
+  };
 }
 
 function project(p){
@@ -265,59 +313,117 @@ function project(p){
   };
 }
 
-function draw(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle="#000";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-
-  stars.forEach(st=>{
-    ctx.fillStyle=st.c;
-    ctx.globalAlpha=.8;
+function drawStars(){
+  for(const st of stars){
+    st.tw+=0.025;
+    let alpha=st.a+Math.sin(st.tw)*.25;
+    ctx.globalAlpha=Math.max(.15,alpha);
+    ctx.fillStyle="#fff";
     ctx.beginPath();
-    ctx.arc(st.x,st.y,st.s,0,Math.PI*2);
+    ctx.arc(st.x,st.y,st.r,0,Math.PI*2);
     ctx.fill();
-  });
-  ctx.globalAlpha=1;
 
-  meteors.forEach(m=>{
-    ctx.strokeStyle="rgba(255,255,255,.7)";
+    if(st.r>1.2){
+      ctx.globalAlpha=alpha*.25;
+      ctx.strokeStyle="#fff";
+      ctx.beginPath();
+      ctx.moveTo(st.x-st.r*3,st.y);
+      ctx.lineTo(st.x+st.r*3,st.y);
+      ctx.moveTo(st.x,st.y-st.r*3);
+      ctx.lineTo(st.x,st.y+st.r*3);
+      ctx.stroke();
+    }
+  }
+  ctx.globalAlpha=1;
+}
+
+function drawMeteors(){
+  for(let i=0;i<meteors.length;i++){
+    const m=meteors[i];
+    if(m.delay>0){m.delay--;continue;}
+
+    const grad=ctx.createLinearGradient(m.x,m.y,m.x-m.len,m.y-m.len*.35);
+    grad.addColorStop(0,"rgba(255,255,255,1)");
+    grad.addColorStop(.25,"rgba(255,255,255,.55)");
+    grad.addColorStop(1,"rgba(255,255,255,0)");
+
+    ctx.strokeStyle=grad;
     ctx.lineWidth=2;
     ctx.beginPath();
     ctx.moveTo(m.x,m.y);
-    ctx.lineTo(m.x-m.l,m.y-35);
+    ctx.lineTo(m.x-m.len,m.y-m.len*.35);
     ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(m.x,m.y,4,0,Math.PI*2);
+
     ctx.fillStyle="white";
+    ctx.shadowColor="white";
+    ctx.shadowBlur=15;
+    ctx.beginPath();
+    ctx.arc(m.x,m.y,3.5,0,Math.PI*2);
     ctx.fill();
+    ctx.shadowBlur=0;
 
     m.x+=m.speed;
-    m.y+=m.speed*.3;
-    if(m.x>canvas.width+100){
-      m.x=Math.random()*canvas.width;
-      m.y=Math.random()*120;
-    }
-  });
+    m.y+=m.speed*.35;
 
-  if(auto) angleY+=0.003;
+    if(m.x>canvas.width+180 || m.y>canvas.height*.7) resetMeteor(i);
+  }
+}
 
-  particles.forEach(p=>{
-    let q=project(p);
-    if(q.s<=0) return;
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  const bg=ctx.createRadialGradient(
+    canvas.width/2,canvas.height/2,10,
+    canvas.width/2,canvas.height/2,canvas.width*.75
+  );
+  bg.addColorStop(0,"#16001f");
+  bg.addColorStop(.35,"#050008");
+  bg.addColorStop(1,"#000");
+  ctx.fillStyle=bg;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  drawStars();
+  drawMeteors();
+
+  if(auto) angleY+=0.0035;
+
+  for(const d of dust){
+    const q=project(d);
+    if(q.s<=0) continue;
+    ctx.globalAlpha=.45;
+    ctx.fillStyle=d.color;
+    ctx.beginPath();
+    ctx.arc(q.x,q.y,d.size*q.s,0,Math.PI*2);
+    ctx.fill();
+  }
+  ctx.globalAlpha=1;
+
+  const sorted=[...particles].sort((a,b)=>project(b).z-project(a).z);
+  for(const p of sorted){
+    const q=project(p);
+    if(q.s<=0) continue;
     ctx.fillStyle=p.color;
-    ctx.globalAlpha=.85;
+    ctx.globalAlpha=.9;
     ctx.beginPath();
     ctx.arc(q.x,q.y,p.size*q.s,0,Math.PI*2);
     ctx.fill();
-  });
+  }
   ctx.globalAlpha=1;
 
-  photos.forEach(p=>{
-    let q=project(p);
-    if(q.s<=0) return;
+  const sortedPhotos=[...photos].sort((a,b)=>project(b).z-project(a).z);
+  for(const p of sortedPhotos){
+    const q=project(p);
+    if(q.s<=0) continue;
+
     let size=p.s*q.s;
+    size=Math.max(18,Math.min(size,72));
+
+    ctx.save();
+    ctx.shadowColor="#d88cff";
+    ctx.shadowBlur=10;
     ctx.drawImage(p.img,q.x-size/2,q.y-size/2,size,size);
-  });
+    ctx.restore();
+  }
 
   requestAnimationFrame(draw);
 }
@@ -325,8 +431,8 @@ function draw(){
 function runAway(){
   const btn=document.getElementById("noBtn");
   btn.style.position="fixed";
-  btn.style.left=Math.random()*(innerWidth-120)+"px";
-  btn.style.top=Math.random()*(innerHeight-60)+"px";
+  btn.style.left=Math.random()*(innerWidth-130)+"px";
+  btn.style.top=Math.random()*(innerHeight-70)+"px";
 }
 
 setTimeout(()=>{
@@ -341,15 +447,17 @@ function showGuide(){
 
 function startWorld(){
   document.getElementById("guide").style.display="none";
-  auto=true;
-  document.getElementById("loveText").style.opacity=1;
+  worldStarted=true;
+  document.getElementById("tapHint").style.opacity=1;
 }
 
-function toggleMusic(){
+function startMoment(){
+  if(!worldStarted) return;
   const music=document.getElementById("music");
-  music.play();
+  music.play().catch(()=>{});
   auto=true;
   document.getElementById("loveText").style.opacity=1;
+  document.getElementById("tapHint").style.opacity=0;
 }
 
 canvas.addEventListener("mousedown",e=>{
@@ -365,14 +473,15 @@ addEventListener("mousemove",e=>{
   lastX=e.clientX;
   lastY=e.clientY;
 });
+
 canvas.addEventListener("wheel",e=>{
-  zoom+=e.deltaY*.6;
-  zoom=Math.max(250,Math.min(1300,zoom));
+  zoom+=e.deltaY*.45;
+  zoom=Math.max(500,Math.min(1250,zoom));
 });
 
-canvas.addEventListener("dblclick",()=>{
-  auto=true;
-  document.getElementById("loveText").style.opacity=1;
+canvas.addEventListener("dblclick",startMoment);
+canvas.addEventListener("click",()=>{
+  if(window.innerWidth<800) startMoment();
 });
 
 addEventListener("resize",()=>{
