@@ -3,275 +3,386 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>My Love Planet ❤️</title>
+<title>Love Planet 💗</title>
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-
 body{
-  height:100vh;
   overflow:hidden;
-  background:#020006;
+  background:#000;
   color:white;
-  font-family:Arial, sans-serif;
+  font-family:Arial,sans-serif;
 }
-
-.screen{
+canvas{
+  position:fixed;
+  inset:0;
+}
+#loader,#question,#guide{
   position:fixed;
   inset:0;
   display:flex;
   align-items:center;
   justify-content:center;
   flex-direction:column;
-  text-align:center;
-  padding:25px;
-  background:radial-gradient(circle at center,#2b0038,#020006 70%);
   z-index:10;
+  background:#000;
+  text-align:center;
 }
-
-h1{
-  color:#ff7ab8;
-  font-size:38px;
-  text-shadow:0 0 20px #ff4fa3;
+.planetIcon{font-size:55px;margin-bottom:25px}
+.loadingCircle{
+  width:70px;height:70px;border-radius:50%;
+  border:6px solid #111;border-top:6px solid #ff5a6e;
+  box-shadow:0 0 30px #ff5a6e;
+  animation:spin 1s linear infinite;
 }
-
-p{
-  margin-top:15px;
-  font-size:19px;
-  line-height:1.5;
-  max-width:600px;
+#loader h1{color:#ffa56d;margin-top:25px}
+#loader p{margin-top:12px}
+#question{
+  display:none;
+  background:rgba(0,0,0,.55);
+  backdrop-filter:blur(8px);
 }
-
+.box{
+  background:rgba(10,10,15,.9);
+  border:1px solid #333;
+  border-radius:16px;
+  padding:35px 45px;
+  box-shadow:0 0 35px #7a2cff55;
+}
+.box h2{color:#ffc1ec;margin-bottom:25px}
 button{
-  margin-top:25px;
   padding:14px 28px;
-  border:none;
-  border-radius:30px;
-  background:#ff4fa3;
+  border-radius:10px;
+  border:1px solid #555;
   color:white;
-  font-size:18px;
-  box-shadow:0 0 25px #ff4fa3;
+  background:#151515;
+  font-weight:bold;
   cursor:pointer;
+  margin:5px;
 }
-
-#galaxy{
-  position:fixed;
-  inset:0;
-  perspective:1000px;
-  overflow:hidden;
-  background:
-    radial-gradient(circle at top,#4b006e55,transparent 35%),
-    radial-gradient(circle at bottom,#ff4fa333,transparent 40%),
-    #020006;
+.yes{
+  background:#cf4f58;
+  box-shadow:0 0 20px #ff6060;
 }
-
-.planet{
+#noBtn{position:relative}
+#guide{
+  display:none;
+  background:rgba(0,0,0,.25);
+}
+.guideBox{
+  width:min(520px,90vw);
+  background:rgba(10,10,15,.88);
+  border:1px solid #333;
+  border-radius:12px;
+  padding:24px;
+  text-align:left;
+}
+.guideBox h2{color:#ffc1ec}
+.guideBox h3{color:#ffc1ec;margin-top:18px}
+.guideBox p{margin:10px 0;line-height:1.5}
+.close{
   position:absolute;
-  top:50%;
-  left:50%;
-  width:220px;
-  height:220px;
-  transform:translate(-50%,-50%);
+  right:calc(50% - 240px);
+  top:calc(50% - 170px);
+  font-size:35px;
+  background:none;
+  border:none;
+}
+#help{
+  position:fixed;
+  top:20px;
+  left:20px;
+  width:48px;
+  height:48px;
   border-radius:50%;
-  background:radial-gradient(circle at 35% 30%,#ffb3d9,#ff4fa3,#5b0078);
-  box-shadow:0 0 60px #ff4fa3, inset -25px -25px 45px #250033;
-  animation:pulse 2.5s infinite alternate;
+  z-index:6;
+  background:#111;
+  box-shadow:0 0 18px white;
 }
-
-.planet::after{
-  content:"❤️";
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:70px;
-}
-
-.orbit{
-  position:absolute;
-  top:50%;
-  left:50%;
-  width:100%;
-  height:100%;
-  transform-style:preserve-3d;
-  animation:rotate 30s linear infinite;
-}
-
-.photo{
-  position:absolute;
-  top:50%;
-  left:50%;
-  width:85px;
-  height:85px;
-  object-fit:cover;
-  border-radius:18px;
-  border:2px solid #fff;
-  box-shadow:0 0 20px #ff7ab8;
-}
-
-.star,.heart{
+#loveText{
   position:fixed;
-  pointer-events:none;
-  animation:float linear forwards;
-}
-
-.heart{
-  color:#ff7ab8;
-}
-
-.letterBtn{
-  position:fixed;
-  bottom:25px;
+  top:18%;
   left:50%;
   transform:translateX(-50%);
   z-index:5;
+  font-size:34px;
+  font-family:cursive;
+  color:white;
+  text-shadow:0 0 12px white;
+  opacity:0;
+  transition:1s;
+  white-space:nowrap;
 }
-
-.letter{
-  display:none;
-  position:fixed;
-  inset:25px;
-  background:rgba(15,0,25,.92);
-  border:2px solid #ff7ab8;
-  border-radius:25px;
-  padding:30px;
-  z-index:20;
-  text-align:center;
-  box-shadow:0 0 40px #ff4fa3;
-}
-
-.letter h2{
-  color:#ff9ccc;
-  margin-bottom:15px;
-}
-
-.letter p{
-  margin:auto;
-  max-width:700px;
-  font-size:20px;
-}
-
-.close{
-  margin-top:25px;
-}
-
-@keyframes rotate{
-  from{transform:translate(-50%,-50%) rotateY(0deg) rotateX(8deg)}
-  to{transform:translate(-50%,-50%) rotateY(360deg) rotateX(8deg)}
-}
-
-@keyframes pulse{
-  from{transform:translate(-50%,-50%) scale(1)}
-  to{transform:translate(-50%,-50%) scale(1.08)}
-}
-
-@keyframes float{
-  from{transform:translateY(0);opacity:1}
-  to{transform:translateY(-110vh);opacity:0}
-}
-
-@media(max-width:700px){
-  .planet{width:160px;height:160px}
-  .photo{width:62px;height:62px;border-radius:14px}
-  h1{font-size:30px}
-  p{font-size:17px}
-}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 
 <body>
 
-<div class="screen" id="start">
-  <h1>For My Love ❤️</h1>
-  <p>I made a little universe filled with your memories.</p>
-  <button onclick="startSite()">Open</button>
+<canvas id="c"></canvas>
+
+<div id="loader">
+  <div class="planetIcon">🪐</div>
+  <div class="loadingCircle"></div>
+  <h1>Love Planet</h1>
+  <p>A world shaped with love, just for you...</p>
+  <p style="font-size:14px;color:#bbb">Just a moment ✨</p>
 </div>
 
-<div id="galaxy">
-  <div class="planet"></div>
-  <div class="orbit" id="orbit"></div>
+<div id="question">
+  <div class="box">
+    <h2>Do you want to see my favorite person?</h2>
+    <button class="yes" onclick="showGuide()">Of course 😍</button>
+    <button id="noBtn" onmouseover="runAway()" onclick="runAway()">No way 😔</button>
+  </div>
 </div>
 
-<button class="letterBtn" onclick="openLetter()">Open Secret Letter 💌</button>
-
-<div class="letter" id="letter">
-  <h2>My Love ❤️</h2>
-  <p>
-    Every photo here is a little piece of my favorite universe — you.
-    I made this because you mean so much to me, and I want you to feel loved
-    every time you see it. You are my favorite person, my safe place, and my happiness.
-    I love you so much. ❤️
-  </p>
-  <button class="close" onclick="closeLetter()">Close</button>
+<div id="guide">
+  <button class="close" onclick="startWorld()">×</button>
+  <div class="guideBox">
+    <h2>Quick Guide</h2>
+    <h3>BASIC CONTROL</h3>
+    <p>💚 <b>[Mobile]</b> Double tap anywhere to start this little moment ✨</p>
+    <p>💙 <b>[PC]</b> Double click anywhere to start this little moment ✨</p>
+    <h3>CAMERA CONTROL</h3>
+    <p>• Drag slowly to explore 🌙</p>
+    <p>• Left click and drag to move around 🌙</p>
+    <p>• Scroll / pinch to zoom closer ✨</p>
+  </div>
 </div>
+
+<button id="help" onclick="toggleMusic()">?</button>
+<div id="loveText">Only For You, My Love</div>
+
+<audio id="music" loop>
+  <source src="music.mp3" type="audio/mpeg">
+</audio>
 
 <script>
-const photos = [
-  "images/photo1.jpg","images/photo2.jpg","images/photo3.jpg","images/photo4.jpg",
-  "images/photo5.jpg","images/photo6.jpg","images/photo7.jpg","images/photo8.jpg",
-  "images/photo9.jpg","images/photo10.jpg","images/photo11.jpg","images/photo12.jpg",
-  "images/photo13.jpg","images/photo14.jpg","images/photo15.jpg","images/photo16.jpg",
-  "images/photo17.jpg","images/photo18.jpg","images/photo19.jpg","images/photo20.jpg",
-  "images/photo21.jpg","images/photo22.jpg","images/photo23.jpg","images/photo24.jpg",
-  "images/photo25.jpg","images/photo26.jpg","images/photo27.jpg","images/photo28.jpg",
-  "images/photo29.jpg","images/photo30.jpg","images/photo31.jpg","images/photo32.jpg"
-];
+const canvas=document.getElementById("c");
+const ctx=canvas.getContext("2d");
+canvas.width=innerWidth;
+canvas.height=innerHeight;
 
-const orbit = document.getElementById("orbit");
+const photoList=[];
+for(let i=1;i<=32;i++) photoList.push(`images/photo${i}.jpg`);
 
-photos.forEach((src, i) => {
-  const img = document.createElement("img");
-  img.src = src;
-  img.className = "photo";
-
-  const angle = (360 / photos.length) * i;
-  const radius = window.innerWidth < 700 ? 170 : 310;
-
-  img.style.transform =
-    `rotateY(${angle}deg) translateZ(${radius}px) translate(-50%,-50%)`;
-
-  orbit.appendChild(img);
+const loadedPhotos=[];
+photoList.forEach(src=>{
+  const img=new Image();
+  img.src=src;
+  loadedPhotos.push(img);
 });
 
-function startSite(){
-  document.getElementById("start").style.display = "none";
-  setInterval(createHeart, 250);
-  setInterval(createStar, 120);
+let particles=[];
+let photos=[];
+let stars=[];
+let meteors=[];
+let angleX=0.7, angleY=0;
+let zoom=750;
+let auto=false;
+let dragging=false;
+let lastX=0,lastY=0;
+
+function init(){
+  particles=[];
+  photos=[];
+  stars=[];
+  meteors=[];
+
+  for(let i=0;i<8500;i++){
+    let r=Math.random()*420+70;
+    let a=Math.random()*Math.PI*2;
+    let y=(Math.random()-.5)*90;
+    particles.push({
+      x:Math.cos(a)*r,
+      y:y,
+      z:Math.sin(a)*r,
+      size:Math.random()*1.6+.4,
+      color:Math.random()>.65?"#ff2ccf":"#7d5cff"
+    });
+  }
+
+  for(let i=0;i<3500;i++){
+    let u=Math.random()*Math.PI*2;
+    let v=Math.random()*Math.PI;
+    let r=115;
+    particles.push({
+      x:Math.cos(u)*Math.sin(v)*r,
+      y:Math.cos(v)*r,
+      z:Math.sin(u)*Math.sin(v)*r,
+      size:Math.random()*1.8+.5,
+      color:"#d62cff"
+    });
+  }
+
+  for(let i=0;i<170;i++){
+    let r=Math.random()*460+120;
+    let a=Math.random()*Math.PI*2;
+    photos.push({
+      x:Math.cos(a)*r,
+      y:(Math.random()-.5)*190,
+      z:Math.sin(a)*r,
+      img:loadedPhotos[i%loadedPhotos.length],
+      s:Math.random()*28+28
+    });
+  }
+
+  for(let i=0;i<450;i++){
+    stars.push({
+      x:Math.random()*canvas.width,
+      y:Math.random()*canvas.height,
+      s:Math.random()*2+0.5,
+      c:Math.random()>.5?"#ff21c8":"#777"
+    });
+  }
+
+  for(let i=0;i<9;i++){
+    meteors.push({
+      x:Math.random()*canvas.width,
+      y:Math.random()*220,
+      l:Math.random()*100+60,
+      speed:Math.random()*2+1
+    });
+  }
 }
 
-function createHeart(){
-  const h = document.createElement("div");
-  h.className = "heart";
-  h.innerHTML = "❤️";
-  h.style.left = Math.random() * 100 + "vw";
-  h.style.bottom = "-30px";
-  h.style.fontSize = Math.random() * 22 + 15 + "px";
-  h.style.animationDuration = Math.random() * 3 + 4 + "s";
-  document.body.appendChild(h);
-  setTimeout(() => h.remove(), 7000);
+function project(p){
+  let cy=Math.cos(angleY), sy=Math.sin(angleY);
+  let cx=Math.cos(angleX), sx=Math.sin(angleX);
+
+  let x=p.x*cy-p.z*sy;
+  let z=p.x*sy+p.z*cy;
+  let y=p.y*cx-z*sx;
+  z=p.y*sx+z*cx;
+
+  let scale=zoom/(zoom+z);
+  return {
+    x:canvas.width/2+x*scale,
+    y:canvas.height/2+y*scale,
+    s:scale,
+    z:z
+  };
 }
 
-function createStar(){
-  const s = document.createElement("div");
-  s.className = "star";
-  s.innerHTML = "✦";
-  s.style.left = Math.random() * 100 + "vw";
-  s.style.bottom = "-20px";
-  s.style.color = "white";
-  s.style.fontSize = Math.random() * 12 + 8 + "px";
-  s.style.animationDuration = Math.random() * 4 + 5 + "s";
-  document.body.appendChild(s);
-  setTimeout(() => s.remove(), 9000);
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle="#000";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  stars.forEach(st=>{
+    ctx.fillStyle=st.c;
+    ctx.globalAlpha=.8;
+    ctx.beginPath();
+    ctx.arc(st.x,st.y,st.s,0,Math.PI*2);
+    ctx.fill();
+  });
+  ctx.globalAlpha=1;
+
+  meteors.forEach(m=>{
+    ctx.strokeStyle="rgba(255,255,255,.7)";
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.moveTo(m.x,m.y);
+    ctx.lineTo(m.x-m.l,m.y-35);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(m.x,m.y,4,0,Math.PI*2);
+    ctx.fillStyle="white";
+    ctx.fill();
+
+    m.x+=m.speed;
+    m.y+=m.speed*.3;
+    if(m.x>canvas.width+100){
+      m.x=Math.random()*canvas.width;
+      m.y=Math.random()*120;
+    }
+  });
+
+  if(auto) angleY+=0.003;
+
+  particles.forEach(p=>{
+    let q=project(p);
+    if(q.s<=0) return;
+    ctx.fillStyle=p.color;
+    ctx.globalAlpha=.85;
+    ctx.beginPath();
+    ctx.arc(q.x,q.y,p.size*q.s,0,Math.PI*2);
+    ctx.fill();
+  });
+  ctx.globalAlpha=1;
+
+  photos.forEach(p=>{
+    let q=project(p);
+    if(q.s<=0) return;
+    let size=p.s*q.s;
+    ctx.drawImage(p.img,q.x-size/2,q.y-size/2,size,size);
+  });
+
+  requestAnimationFrame(draw);
 }
 
-function openLetter(){
-  document.getElementById("letter").style.display = "block";
+function runAway(){
+  const btn=document.getElementById("noBtn");
+  btn.style.position="fixed";
+  btn.style.left=Math.random()*(innerWidth-120)+"px";
+  btn.style.top=Math.random()*(innerHeight-60)+"px";
 }
 
-function closeLetter(){
-  document.getElementById("letter").style.display = "none";
+setTimeout(()=>{
+  document.getElementById("loader").style.display="none";
+  document.getElementById("question").style.display="flex";
+},2500);
+
+function showGuide(){
+  document.getElementById("question").style.display="none";
+  document.getElementById("guide").style.display="flex";
 }
+
+function startWorld(){
+  document.getElementById("guide").style.display="none";
+  auto=true;
+  document.getElementById("loveText").style.opacity=1;
+}
+
+function toggleMusic(){
+  const music=document.getElementById("music");
+  music.play();
+  auto=true;
+  document.getElementById("loveText").style.opacity=1;
+}
+
+canvas.addEventListener("mousedown",e=>{
+  dragging=true;
+  lastX=e.clientX;
+  lastY=e.clientY;
+});
+addEventListener("mouseup",()=>dragging=false);
+addEventListener("mousemove",e=>{
+  if(!dragging)return;
+  angleY+=(e.clientX-lastX)*0.005;
+  angleX+=(e.clientY-lastY)*0.005;
+  lastX=e.clientX;
+  lastY=e.clientY;
+});
+canvas.addEventListener("wheel",e=>{
+  zoom+=e.deltaY*.6;
+  zoom=Math.max(250,Math.min(1300,zoom));
+});
+
+canvas.addEventListener("dblclick",()=>{
+  auto=true;
+  document.getElementById("loveText").style.opacity=1;
+});
+
+addEventListener("resize",()=>{
+  canvas.width=innerWidth;
+  canvas.height=innerHeight;
+  init();
+});
+
+init();
+draw();
 </script>
 
 </body>
