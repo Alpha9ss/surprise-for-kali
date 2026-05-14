@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Love Planet ❤️</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  height:100vh;
+  overflow:hidden;
+  background:#020006;
+  color:white;
+  font-family:Arial, sans-serif;
+}
+
+.screen{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  text-align:center;
+  padding:25px;
+  background:radial-gradient(circle at center,#2b0038,#020006 70%);
+  z-index:10;
+}
+
+h1{
+  color:#ff7ab8;
+  font-size:38px;
+  text-shadow:0 0 20px #ff4fa3;
+}
+
+p{
+  margin-top:15px;
+  font-size:19px;
+  line-height:1.5;
+  max-width:600px;
+}
+
+button{
+  margin-top:25px;
+  padding:14px 28px;
+  border:none;
+  border-radius:30px;
+  background:#ff4fa3;
+  color:white;
+  font-size:18px;
+  box-shadow:0 0 25px #ff4fa3;
+  cursor:pointer;
+}
+
+#galaxy{
+  position:fixed;
+  inset:0;
+  perspective:1000px;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at top,#4b006e55,transparent 35%),
+    radial-gradient(circle at bottom,#ff4fa333,transparent 40%),
+    #020006;
+}
+
+.planet{
+  position:absolute;
+  top:50%;
+  left:50%;
+  width:220px;
+  height:220px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#ffb3d9,#ff4fa3,#5b0078);
+  box-shadow:0 0 60px #ff4fa3, inset -25px -25px 45px #250033;
+  animation:pulse 2.5s infinite alternate;
+}
+
+.planet::after{
+  content:"❤️";
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:70px;
+}
+
+.orbit{
+  position:absolute;
+  top:50%;
+  left:50%;
+  width:100%;
+  height:100%;
+  transform-style:preserve-3d;
+  animation:rotate 30s linear infinite;
+}
+
+.photo{
+  position:absolute;
+  top:50%;
+  left:50%;
+  width:85px;
+  height:85px;
+  object-fit:cover;
+  border-radius:18px;
+  border:2px solid #fff;
+  box-shadow:0 0 20px #ff7ab8;
+}
+
+.star,.heart{
+  position:fixed;
+  pointer-events:none;
+  animation:float linear forwards;
+}
+
+.heart{
+  color:#ff7ab8;
+}
+
+.letterBtn{
+  position:fixed;
+  bottom:25px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:5;
+}
+
+.letter{
+  display:none;
+  position:fixed;
+  inset:25px;
+  background:rgba(15,0,25,.92);
+  border:2px solid #ff7ab8;
+  border-radius:25px;
+  padding:30px;
+  z-index:20;
+  text-align:center;
+  box-shadow:0 0 40px #ff4fa3;
+}
+
+.letter h2{
+  color:#ff9ccc;
+  margin-bottom:15px;
+}
+
+.letter p{
+  margin:auto;
+  max-width:700px;
+  font-size:20px;
+}
+
+.close{
+  margin-top:25px;
+}
+
+@keyframes rotate{
+  from{transform:translate(-50%,-50%) rotateY(0deg) rotateX(8deg)}
+  to{transform:translate(-50%,-50%) rotateY(360deg) rotateX(8deg)}
+}
+
+@keyframes pulse{
+  from{transform:translate(-50%,-50%) scale(1)}
+  to{transform:translate(-50%,-50%) scale(1.08)}
+}
+
+@keyframes float{
+  from{transform:translateY(0);opacity:1}
+  to{transform:translateY(-110vh);opacity:0}
+}
+
+@media(max-width:700px){
+  .planet{width:160px;height:160px}
+  .photo{width:62px;height:62px;border-radius:14px}
+  h1{font-size:30px}
+  p{font-size:17px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="screen" id="start">
+  <h1>For My Love ❤️</h1>
+  <p>I made a little universe filled with your memories.</p>
+  <button onclick="startSite()">Open</button>
+</div>
+
+<div id="galaxy">
+  <div class="planet"></div>
+  <div class="orbit" id="orbit"></div>
+</div>
+
+<button class="letterBtn" onclick="openLetter()">Open Secret Letter 💌</button>
+
+<div class="letter" id="letter">
+  <h2>My Love ❤️</h2>
+  <p>
+    Every photo here is a little piece of my favorite universe — you.
+    I made this because you mean so much to me, and I want you to feel loved
+    every time you see it. You are my favorite person, my safe place, and my happiness.
+    I love you so much. ❤️
+  </p>
+  <button class="close" onclick="closeLetter()">Close</button>
+</div>
+
+<script>
+const photos = [
+  "images/photo1.jpg","images/photo2.jpg","images/photo3.jpg","images/photo4.jpg",
+  "images/photo5.jpg","images/photo6.jpg","images/photo7.jpg","images/photo8.jpg",
+  "images/photo9.jpg","images/photo10.jpg","images/photo11.jpg","images/photo12.jpg",
+  "images/photo13.jpg","images/photo14.jpg","images/photo15.jpg","images/photo16.jpg",
+  "images/photo17.jpg","images/photo18.jpg","images/photo19.jpg","images/photo20.jpg",
+  "images/photo21.jpg","images/photo22.jpg","images/photo23.jpg","images/photo24.jpg",
+  "images/photo25.jpg","images/photo26.jpg","images/photo27.jpg","images/photo28.jpg",
+  "images/photo29.jpg","images/photo30.jpg","images/photo31.jpg","images/photo32.jpg"
+];
+
+const orbit = document.getElementById("orbit");
+
+photos.forEach((src, i) => {
+  const img = document.createElement("img");
+  img.src = src;
+  img.className = "photo";
+
+  const angle = (360 / photos.length) * i;
+  const radius = window.innerWidth < 700 ? 170 : 310;
+
+  img.style.transform =
+    `rotateY(${angle}deg) translateZ(${radius}px) translate(-50%,-50%)`;
+
+  orbit.appendChild(img);
+});
+
+function startSite(){
+  document.getElementById("start").style.display = "none";
+  setInterval(createHeart, 250);
+  setInterval(createStar, 120);
+}
+
+function createHeart(){
+  const h = document.createElement("div");
+  h.className = "heart";
+  h.innerHTML = "❤️";
+  h.style.left = Math.random() * 100 + "vw";
+  h.style.bottom = "-30px";
+  h.style.fontSize = Math.random() * 22 + 15 + "px";
+  h.style.animationDuration = Math.random() * 3 + 4 + "s";
+  document.body.appendChild(h);
+  setTimeout(() => h.remove(), 7000);
+}
+
+function createStar(){
+  const s = document.createElement("div");
+  s.className = "star";
+  s.innerHTML = "✦";
+  s.style.left = Math.random() * 100 + "vw";
+  s.style.bottom = "-20px";
+  s.style.color = "white";
+  s.style.fontSize = Math.random() * 12 + 8 + "px";
+  s.style.animationDuration = Math.random() * 4 + 5 + "s";
+  document.body.appendChild(s);
+  setTimeout(() => s.remove(), 9000);
+}
+
+function openLetter(){
+  document.getElementById("letter").style.display = "block";
+}
+
+function closeLetter(){
+  document.getElementById("letter").style.display = "none";
+}
+</script>
+
+</body>
+</html>
