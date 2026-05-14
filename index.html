@@ -427,8 +427,8 @@ function draw(){
     const q=project(p);
     if(q.s<=0) continue;
 
-    let size=p.s*q.s;
-    size=Math.max(22,Math.min(size,58));
+    let size = p.s * q.s;
+    size = Math.max(22, Math.min(size,130));
 
     ctx.save();
     ctx.shadowColor="#d88cff";
